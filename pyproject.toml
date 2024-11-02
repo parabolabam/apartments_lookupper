@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "news-shepherd"
+version = "0.1.0"
+description = "Backed that will parse user chosen telegram channels and apply RAG to 'em to find most relatable items from those, maybe event filter them out"
+authors = ["parabolabam <sorokinvladislav1402@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
