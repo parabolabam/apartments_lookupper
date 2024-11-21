@@ -1,36 +1,26 @@
-FROM python:3.12-slim as python-base
+FROM python:3.12-slim
 
-# Poetry configuration
-ENV POETRY_VERSION=1.7.1 \
-    POETRY_HOME=/opt/poetry \
-    POETRY_VENV=/opt/poetry-venv \
-    POETRY_CACHE_DIR=/opt/.cache
-
-# Install poetry separated from system interpreter
-FROM python-base as poetry-base
-RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
-    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
-
-# Create runtime image
-FROM python-base as runtime
-
-# Copy Poetry to runtime image
-COPY --from=poetry-base ${POETRY_VENV} ${POETRY_VENV}
-
-# Add Poetry to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
-
+# Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY poetry.lock pyproject.toml ./
-COPY news_shepherd ./news_shepherd
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y gcc python3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install poetry
+RUN pip install poetry==1.7.1
+
+# Copy just the dependency files first
+COPY pyproject.toml poetry.lock ./
 
 # Install dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-cache --without dev
+RUN poetry install --no-interaction --no-ansi
 
-# Command to run the bot
+# Copy the rest of the code
+COPY . .
+
+# Command to run the application
 CMD ["python", "-m", "news_shepherd.bot"]
 
