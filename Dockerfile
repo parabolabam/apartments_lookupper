@@ -1,5 +1,4 @@
-# Use Python 3.10 slim image
-FROM python:3.10-slim as python-base
+FROM python:3.12-slim as python-base
 
 # Poetry configuration
 ENV POETRY_VERSION=1.7.1 \
