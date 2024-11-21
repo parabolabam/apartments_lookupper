@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  bot:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/telegram_news
+      - MONGODB_URI=mongodb://mongo:27017/
+    command: ["poetry", "run", "python", "bot.py"]
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: telegram_news
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  pgdata:
+  mongodata:

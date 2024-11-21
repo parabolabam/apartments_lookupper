@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: News Shepherd Bot",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "news_shepherd.bot",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+} 
