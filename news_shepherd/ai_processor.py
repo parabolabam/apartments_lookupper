@@ -21,19 +21,27 @@ class ApartmentAIProcessor:
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that analyzes apartment listings."},
-                    {"role": "user", "content": f"Please analyze this apartment listing and extract key information: {text}"}
-                ]
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant that analyzes apartment listings.",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Please analyze this apartment listing and extract key information: {text}",
+                    },
+                ],
             )
             return response.choices[0].message.content
         except Exception as e:
             print(f"Error processing message with OpenAI: {e}")
             return None
 
-    async def analyze_listing(self, text: str, user_criteria: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    async def analyze_listing(
+        self, text: str, user_criteria: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Analyze apartment listing text using OpenAI and match against user criteria.
-        
+
         Args:
             text: The apartment listing text
             user_criteria: Dictionary containing user preferences like:
@@ -47,14 +55,19 @@ class ApartmentAIProcessor:
         """
         try:
             criteria_str = "\n".join(f"- {k}: {v}" for k, v in user_criteria.items())
-            
+
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": """You are an AI assistant that analyzes apartment listings 
+                    {
+                        "role": "system",
+                        "content": """You are an AI assistant that analyzes apartment listings 
                      and determines if they match user criteria. Extract key information and provide a clear 
-                     match/no match decision with explanation."""},
-                    {"role": "user", "content": f"""
+                     match/no match decision with explanation.""",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"""
                     User is looking for an apartment with these criteria:
                     {criteria_str}
                     
@@ -66,12 +79,13 @@ class ApartmentAIProcessor:
                     - explanation (string)
                     - extracted_info (object with price, rooms, location, etc.)
                     - missing_criteria (array of criteria that couldn't be determined)
-                    """}
+                    """,
+                    },
                 ],
-                response_format={ "type": "json_object" }
+                response_format={"type": "json_object"},
             )
-            
-            return json.loads(response.choices[0].message.content)
+
+            return json.loads(response.choices[0].message.content or "")
         except Exception as e:
             print(f"Error processing message with OpenAI: {e}")
             return None
@@ -79,18 +93,23 @@ class ApartmentAIProcessor:
     async def create_user_criteria(self, user_description: str) -> Dict[str, Any]:
         """
         Convert a natural language description of preferences into structured criteria.
-        
+
         Args:
-            user_description: e.g. "I'm looking for a 2-bedroom apartment in Vake or Saburtalo, 
+            user_description: e.g. "I'm looking for a 2-bedroom apartment in Vake or Saburtalo,
                              max $1000, must have parking"
         """
         try:
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": """Convert user apartment preferences into structured criteria. 
-                     Extract specific requirements for price, rooms, location, amenities, etc."""},
-                    {"role": "user", "content": f"""
+                    {
+                        "role": "system",
+                        "content": """Convert user apartment preferences into structured criteria. 
+                     Extract specific requirements for price, rooms, location, amenities, etc.""",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"""
                     Convert this apartment search description into JSON criteria:
                     {user_description}
                     
@@ -104,12 +123,14 @@ class ApartmentAIProcessor:
                     - nice_to_have (array of preferred but not required amenities)
                     - max_floor
                     - other_requirements (array)
-                    """}
+                    """,
+                    },
                 ],
-                response_format={ "type": "json_object" }
+                response_format={"type": "json_object"},
             )
-            
-            return json.loads(response.choices[0].message.content)
+
+            return json.loads(response.choices[0].message.content or "")
         except Exception as e:
             print(f"Error creating user criteria with OpenAI: {e}")
-            return None
+            return {}
+
